@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en" data-bs-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EU Acronym Quiz - Results</title>
+    <link rel="stylesheet" href="https://cdn.replit.com/agent/bootstrap-agent-dark-theme.min.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
+</head>
+<body>
+    <div class="container mt-5">
+        <div class="row justify-content-center">
+            <div class="col-md-8">
+                <div class="card shadow">
+                    <div class="card-header bg-primary text-white">
+                        <h1 class="text-center mb-0">EU Acronym Quiz</h1>
+                    </div>
+                    <div class="card-body">
+                        <div class="text-center mb-4">
+                            <i class="bi bi-trophy display-1 text-warning"></i>
+                        </div>
+                        
+                        <h2 class="text-center mb-4">Quiz Completed!</h2>
+                        
+                        <div class="card mb-4">
+                            <div class="card-body text-center">
+                                <h3 class="mb-3">Your Score</h3>
+                                <div class="display-1 mb-3 text-primary">
+                                    {{ score }}/{{ total }}
+                                </div>
+                                <p class="mb-0 lead">
+                                    {% if score == total %}
+                                        Perfect score! Outstanding work!
+                                    {% elif score >= total * 0.8 %}
+                                        Great job! You really know your EU organizations!
+                                    {% elif score >= total * 0.6 %}
+                                        Good work! You have solid knowledge of EU organizations.
+                                    {% elif score >= total * 0.4 %}
+                                        Nice effort! You're on your way to becoming an EU organization expert.
+                                    {% else %}
+                                        Keep learning! With practice, you'll become familiar with EU organizations.
+                                    {% endif %}
+                                </p>
+                            </div>
+                        </div>
+                        
+                        {% if incorrect_answers %}
+                            <div class="card mb-4">
+                                <div class="card-header">
+                                    <h4 class="mb-0">Review Incorrect Answers</h4>
+                                </div>
+                                <div class="card-body">
+                                    <div class="table-responsive">
+                                        <table class="table">
+                                            <thead>
+                                                <tr>
+                                                    <th>Acronym</th>
+                                                    <th>Your Answer</th>
+                                                    <th>Correct Answer</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                {% for answer in incorrect_answers %}
+                                                <tr>
+                                                    <td class="fw-bold">{{ answer.acronym }}</td>
+                                                    <td class="text-danger">{{ answer.user_answer }}</td>
+                                                    <td class="text-success">{{ answer.correct_answer }}</td>
+                                                </tr>
+                                                {% endfor %}
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                        {% endif %}
+                        
+                        <div class="alert alert-info mb-4">
+                            <p class="mb-1"><i class="bi bi-share me-2"></i> Take a screenshot of your results and share it with friends!</p>
+                        </div>
+                        
+                        <div class="d-grid gap-2">
+                            <form action="{{ url_for('reset_quiz') }}" method="post">
+                                <div class="d-grid">
+                                    <button type="submit" class="btn btn-success btn-lg">
+                                        <i class="bi bi-arrow-repeat me-2"></i>Take Quiz Again
+                                    </button>
+                                </div>
+                            </form>
+                            <a href="{{ url_for('index') }}" class="btn btn-secondary btn-lg">
+                                <i class="bi bi-house me-2"></i>Return to Home
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

@@ -1,0 +1,444 @@
+<!DOCTYPE html>
+<html lang="en" data-bs-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EU Acronym Quiz</title>
+    <link rel="stylesheet" href="https://cdn.replit.com/agent/bootstrap-agent-dark-theme.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
+    <style>
+        .hidden {
+            display: none;
+        }
+        .card {
+            margin-bottom: 20px;
+        }
+        .results-container {
+            margin-top: 20px;
+        }
+        .incorrect-answers {
+            margin-top: 20px;
+        }
+        .score-display {
+            font-size: 24px;
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container mt-5">
+        <div class="row justify-content-center">
+            <div class="col-md-8">
+                <!-- Welcome Screen -->
+                <div id="welcome-screen" class="card shadow">
+                    <div class="card-header bg-primary text-white">
+                        <h1 class="text-center mb-0">EU Acronym Quiz</h1>
+                    </div>
+                    <div class="card-body">
+                        <div class="text-center mb-4">
+                            <i class="bi bi-stars display-1 text-warning"></i>
+                        </div>
+                        
+                        <h3 class="text-center mb-4">Test your knowledge of European Union organization acronyms!</h3>
+
+                        <div class="card mb-4">
+                            <div class="card-body">
+                                <h4 class="card-title">How to Play</h4>
+                                <ol class="mb-0">
+                                    <li>The quiz will present you with 15 EU organization acronyms</li>
+                                    <li>Type the full name of each acronym in the input box</li>
+                                    <li>See your final score and review incorrect answers at the end</li>
+                                </ol>
+                            </div>
+                        </div>
+
+                        <div class="d-grid">
+                            <button id="start-quiz" class="btn btn-primary btn-lg">
+                                <i class="bi bi-play-fill me-2"></i>Start Quiz
+                            </button>
+                        </div>
+                    </div>
+                    <div class="card-footer text-center">
+                        <p class="mb-0">Learn more about EU organizations while having fun!</p>
+                    </div>
+                </div>
+
+                <!-- Quiz Screen -->
+                <div id="quiz-screen" class="card shadow hidden">
+                    <div class="card-header bg-primary text-white">
+                        <h2 class="text-center mb-0">EU Acronym Quiz</h2>
+                    </div>
+                    <div class="card-body">
+                        <div class="progress mb-4">
+                            <div id="progress-bar" class="progress-bar" role="progressbar" style="width: 0%;" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100">0%</div>
+                        </div>
+                        
+                        <h4 class="mb-3">Question <span id="current-question">1</span> of <span id="total-questions">15</span></h4>
+                        
+                        <div class="card mb-4">
+                            <div class="card-body">
+                                <h3 class="text-center mb-4">What does <span id="acronym" class="fw-bold text-primary"></span> stand for?</h3>
+                                
+                                <form id="answer-form" class="mb-3">
+                                    <div class="mb-3">
+                                        <label for="answer" class="form-label">Enter the full name:</label>
+                                        <input type="text" id="answer" class="form-control form-control-lg" placeholder="Type your answer here..." required>
+                                    </div>
+                                    <div class="d-grid">
+                                        <button type="submit" class="btn btn-primary">Submit Answer</button>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Results Screen -->
+                <div id="results-screen" class="card shadow hidden">
+                    <div class="card-header bg-primary text-white">
+                        <h2 class="text-center mb-0">Quiz Results</h2>
+                    </div>
+                    <div class="card-body">
+                        <div class="text-center mb-4">
+                            <i class="bi bi-trophy display-1 text-warning"></i>
+                        </div>
+                        
+                        <h3 class="text-center mb-4">Your Score</h3>
+                        <div class="text-center score-display">
+                            <span id="score">0</span> / <span id="total">15</span>
+                        </div>
+                        
+                        <div id="incorrect-answers-container" class="incorrect-answers">
+                            <h4 class="mb-3">Review your incorrect answers:</h4>
+                            <div id="incorrect-answers-list" class="list-group">
+                                <!-- Incorrect answers will be inserted here -->
+                            </div>
+                        </div>
+                        
+                        <div class="d-grid mt-4">
+                            <button id="restart-quiz" class="btn btn-primary btn-lg">
+                                <i class="bi bi-arrow-repeat me-2"></i>Take Another Quiz
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // EU organization data
+        const EU_DATA = [
+            {"acronym": "EU", "full_name": "European Union"},
+            {"acronym": "EC", "full_name": "European Commission"},
+            {"acronym": "EP", "full_name": "European Parliament"},
+            {"acronym": "EIB", "full_name": "European Investment Bank"},
+            {"acronym": "EMA", "full_name": "European Medicines Agency"},
+            {"acronym": "EFSA", "full_name": "European Food Safety Authority"},
+            {"acronym": "ECDC", "full_name": "European Centre for Disease Prevention and Control"},
+            {"acronym": "EMSA", "full_name": "European Maritime Safety Agency"},
+            {"acronym": "EEA", "full_name": "European Environment Agency"},
+            {"acronym": "EFCA", "full_name": "European Fisheries Control Agency"},
+            {"acronym": "EMCDDA", "full_name": "European Monitoring Centre for Drugs and Drug Addiction"},
+            {"acronym": "EASO", "full_name": "European Asylum Support Office"},
+            {"acronym": "EIGE", "full_name": "European Institute for Gender Equality"},
+            {"acronym": "ECHA", "full_name": "European Chemicals Agency"},
+            {"acronym": "ENISA", "full_name": "European Union Agency for Cybersecurity"},
+            {"acronym": "BEREC", "full_name": "Body of European Regulators for Electronic Communications"},
+            {"acronym": "ESMA", "full_name": "European Securities and Markets Authority"},
+            {"acronym": "EBA", "full_name": "European Banking Authority"},
+            {"acronym": "ESA", "full_name": "European Space Agency"},
+            {"acronym": "EUIPO", "full_name": "European Union Intellectual Property Office"},
+            {"acronym": "CEV", "full_name": "Center for European Volunteeriing"},
+            {"acronym": "CSE", "full_name": "Civil Society Europe"},
+            {"acronym": "CESES", "full_name": "Confederation of European Senior Expert Services a.i.s.b.l."},
+            {"acronym": "EAP-CSF", "full_name": "Eastern Partnership Civil Society Forum"},
+            {"acronym": "ECIT", "full_name": "European citizens' rights, involvement and trust"},
+            {"acronym": "FCE", "full_name": "European Civic Forum"},
+            {"acronym": "TGL", "full_name": "The Good Lobby"},
+            {"acronym": "AEA", "full_name": "Agroecology Europe Association"},
+            {"acronym": "ECVC", "full_name": "European Coordination Via Campesina"},
+            {"acronym": "EfA", "full_name": "Eurogroup for Animals"},
+            {"acronym": "HSI Europe", "full_name": "Humane Society International - Europe"},
+            {"acronym": "ENAR", "full_name": "European Network Against Racism"},
+            {"acronym": "ERGO Network", "full_name": "European Roma Grassroots Organisations Network"},
+            {"acronym": "CEC", "full_name": "CEC European Managers"},
+            {"acronym": "UNITEE", "full_name": "New European Business Confederation"},
+            {"acronym": "UECNA", "full_name": "Union Européenne Contre les Nuisances des Avions"},
+            {"acronym": "CEACSO", "full_name": "Centre for the Advancement of Civil Society Organisations"},
+            {"acronym": "ECNL", "full_name": "European Center for Non for profit law"},
+            {"acronym": "CEDAG", "full_name": "European Council for Non-Profit Organisations"},
+            {"acronym": "AEW", "full_name": "AgoraEnergieWende"},
+            {"acronym": "Birdlife Europe", "full_name": "Birdlife International Europe and Central Asia"},
+            {"acronym": "C40", "full_name": "C40 Cities"},
+            {"acronym": "CMW", "full_name": "Carbon Market Watch"},
+            {"acronym": "CCLE", "full_name": "Citizen' Climate Lobby Europe"},
+            {"acronym": "CAN Europe", "full_name": "Climate Action Network Europe"},
+            {"acronym": "CA", "full_name": "Climate Alliance"},
+            {"acronym": "CI Europe", "full_name": "Conservation International Europe"},
+            {"acronym": "CME", "full_name": "Covenant of Mayors Europe"},
+            {"acronym": "ECOS", "full_name": "Environmental Coalition on Standards"},
+            {"acronym": "EJF", "full_name": "Environmental Justice Foundation"},
+            {"acronym": "EBCD", "full_name": "European Bureau for Conservation and Development"},
+            {"acronym": "ECF", "full_name": "European Climate Foundation"},
+            {"acronym": "ECN", "full_name": "European Compost Network"},
+            {"acronym": "ECF", "full_name": "European Cyclists' Federation"},
+            {"acronym": "EEB", "full_name": "European Environmental Bureau"},
+            {"acronym": "EFCF", "full_name": "European Federation of City Farms"},
+            {"acronym": "EGC", "full_name": "European Green Cities"},
+            {"acronym": "ELSA", "full_name": "European Land and Soil Alliance"},
+            {"acronym": "ESTELA", "full_name": "European Solar Thermal Electricity Association"},
+            {"acronym": "ESCP", "full_name": "European Sustainable Cities Platform"},
+            {"acronym": "XR", "full_name": "Extinction Rebellion"},
+            {"acronym": "FFF", "full_name": "Fridays for Future"},
+            {"acronym": "NF", "full_name": "Friends of Nature"},
+            {"acronym": "FoE Europe", "full_name": "Friends of the Earth Europe"},
+            {"acronym": "GEN", "full_name": "Global Ecovillage Network"},
+            {"acronym": "GEN Europe", "full_name": "Global Ecovillage Network Europe"},
+            {"acronym": "HEAL", "full_name": "Health and Environment Alliance"},
+            {"acronym": "ICLEI", "full_name": "Local Governments for Sustainability"},
+            {"acronym": "NCI", "full_name": "New Climate Institute"},
+            {"acronym": "OCP", "full_name": "Ocean & Climate Platform"},
+            {"acronym": "OZL", "full_name": "Oceano Azul Foundation"},
+            {"acronym": "PN", "full_name": "Permaculture Network"},
+            {"acronym": "PAN Europe", "full_name": "Pesticide Action Network Europe"},
+            {"acronym": "PSF", "full_name": "Plastic Soup Foundation"},
+            {"acronym": "PIK Potsdam", "full_name": "Potsdam Institute for Climate Impact Research"},
+            {"acronym": "POW Europe", "full_name": "Protect Our Winters Europe"},
+            {"acronym": "SDG Watch", "full_name": "SDG watch Europe"},
+            {"acronym": "SAR", "full_name": "Seas At Risk"},
+            {"acronym": "SEI", "full_name": "Stockholm Environment Institute"},
+            {"acronym": "SRC", "full_name": "Stockholm Resilience Center"},
+            {"acronym": "Surfrider", "full_name": "Surfrider Foundation Europe"},
+            {"acronym": "E3G", "full_name": "Third Generation Environmentalism"},
+            {"acronym": "T&E", "full_name": "Transport and Environment"},
+            {"acronym": "WCMC Europe", "full_name": "WCMC Europe"},
+            {"acronym": "WWF EPO", "full_name": "World Wide Fund For Nature - European Policy Office"},
+            {"acronym": "WI", "full_name": "Wuppertal Institute"},
+            {"acronym": "ZWE", "full_name": "Zero Waste Europe"},
+            {"acronym": "BEUC", "full_name": "Bureau Europeen des Unions des consommateurs / The European Consumer Organisation"},
+            {"acronym": "CAE", "full_name": "Culture Action Europe"},
+            {"acronym": "EJN", "full_name": "Europe Jazz Network"},
+            {"acronym": "AEC", "full_name": "European Association of Conservatoires"},
+            {"acronym": "ECC", "full_name": "European Centre for Culture"},
+            {"acronym": "European Choral Association", "full_name": "European Choral Association - Europa Cantat"},
+            {"acronym": "ECHO", "full_name": "European Concert Hall Organisation"},
+            {"acronym": "CEATL", "full_name": "European Council of Associations of Literary Translators"},
+            {"acronym": "ECHN", "full_name": "European Creative Hubs Network"},
+            {"acronym": "ECF", "full_name": "European Cultural Foundation"},
+            {"acronym": "EDN", "full_name": "European Dancehouse Network"},
+            {"acronym": "REMA", "full_name": "European Early Music Network"},
+            {"acronym": "EFHA", "full_name": "European Fashion Heritage Association"},
+            {"acronym": "EFNYO", "full_name": "European Federation of National Youth Orchestras"},
+            {"acronym": "EFA-AEF", "full_name": "European Festival Association"},
+            {"acronym": "EFAD", "full_name": "European Film Agencies"},
+            {"acronym": "EFN", "full_name": "European Folk Network"},
+            {"acronym": "EuFoA", "full_name": "European Friends of Armenia"},
+            {"acronym": "GESAC", "full_name": "European Grouping of Societies of Authors and Composers"},
+            {"acronym": "ELIA", "full_name": "European League of Institutes of the Arts"},
+            {"acronym": "EMC", "full_name": "European Music Council"},
+            {"acronym": "AMATEO", "full_name": "European Network for Active Participation in Cultural Activities"},
+            {"acronym": "RESEO", "full_name": "European Network for Opera and Dance Education"},
+            {"acronym": "ENCC", "full_name": "European Network of Cultural Centres"},
+            {"acronym": "ACCR", "full_name": "European Network of Cultural Centres-Historic Monuments"},
+            {"acronym": "ERC", "full_name": "European Region of Culture"},
+            {"acronym": "ETC", "full_name": "European Theatre Convention"},
+            {"acronym": "EEOFE", "full_name": "Eyes & Ears Europe – Association for the Design, Promotion and Marketing of Audiovisual Media"},
+            {"acronym": "FEST Network", "full_name": "Federation for European Storytelling"},
+            {"acronym": "IAA Europe", "full_name": "International Association of Art (IAA) Europe"},
+            {"acronym": "PEARLE*", "full_name": "Live Performance Europe (Performing Arts Employers Association League Europe)"},
+            {"acronym": "NEMO", "full_name": "Network of European Museum Organisations"},
+            {"acronym": "RCE", "full_name": "Relais Culture Europe"},
+            {"acronym": "ECV", "full_name": "European Confederation of Veterans"},
+            {"acronym": "EUROMIL", "full_name": "European Organisation of Military Associations and Trade Unions"},
+            {"acronym": "DI", "full_name": "Democracy International"},
+            {"acronym": "DemNext", "full_name": "DemocracyNext"},
+            {"acronym": "ALDA", "full_name": "European Association for Local Democracy"},
+            {"acronym": "ECAS", "full_name": "European Citizen Action Service"},
+            {"acronym": "EHF", "full_name": "European Humanist Federation"},
+            {"acronym": "EPD", "full_name": "European Partnership for Democracy"},
+            {"acronym": "FIDE", "full_name": "Federation for Innovation in Democracy - Europe"},
+            {"acronym": "FoE", "full_name": "Friends of Europe"},
+            {"acronym": "TI Europe", "full_name": "Transparency International Europe"},
+            {"acronym": "WVI", "full_name": "World vision"},
+            {"acronym": "EDRi", "full_name": "European Digital Rights"},
+            {"acronym": "AE", "full_name": "Autism-Europe"},
+            {"acronym": "BIFEC", "full_name": "Brain Injured and Families - European Confederation"},
+            {"acronym": "CP-ECA", "full_name": "Cerebral Palsy - European Communities Association"},
+            {"acronym": "EURO-CIU", "full_name": "European Association of Cochlear Implant Users"},
+            {"acronym": "EASPD", "full_name": "European Association of Service Providers for Personns with Disabiliities"},
+            {"acronym": "EBU", "full_name": "European Blind Union"},
+            {"acronym": "EUCAP", "full_name": "European Council of Autistic People"},
+            {"acronym": "EDU", "full_name": "European Deafblind Union"},
+            {"acronym": "EDF", "full_name": "European Disability Forum"},
+            {"acronym": "EDSA", "full_name": "European Down Syndrom Association"},
+            {"acronym": "EDA", "full_name": "European Dyslexia Association"},
+            {"acronym": "EFHOH", "full_name": "European Federation of Hard of Hearing"},
+            {"acronym": "ENUSP", "full_name": "European Network of (ex)users and survivors of psychiatry (ENUSP)"},
+            {"acronym": "ENIL", "full_name": "European Network on Independent Living"},
+            {"acronym": "EUD", "full_name": "European Union of the Deaf"},
+            {"acronym": "DEAL", "full_name": "Donut Economics Action Lab"},
+            {"acronym": "All Digital", "full_name": "All Digital"},
+            {"acronym": "ATEE", "full_name": "Association for Teacher Education in Europe"},
+            {"acronym": "CIFE", "full_name": "Centre international de formation européenne"},
+            {"acronym": "DARE", "full_name": "Democracy and Human Rights Education in Europe"},
+            {"acronym": "Diesis Network", "full_name": "Diesis Network"},
+            {"acronym": "EMDR Europe", "full_name": "EMDR Europe"},
+            {"acronym": "EAN", "full_name": "European Apprentices Network"},
+            {"acronym": "Euroclio", "full_name": "European Assocation of History Educators"},
+            {"acronym": "EAIE", "full_name": "European Association for International Education"},
+            {"acronym": "EAEA", "full_name": "European Association for the Education of Adults"},
+            {"acronym": "AEDE", "full_name": "European Association of Education"}
+        ];
+
+        // Quiz state
+        let quizQuestions = [];
+        let currentQuestion = 0;
+        let score = 0;
+        let userAnswers = [];
+
+        // DOM elements
+        const welcomeScreen = document.getElementById('welcome-screen');
+        const quizScreen = document.getElementById('quiz-screen');
+        const resultsScreen = document.getElementById('results-screen');
+        const startQuizBtn = document.getElementById('start-quiz');
+        const answerForm = document.getElementById('answer-form');
+        const acronymElement = document.getElementById('acronym');
+        const answerInput = document.getElementById('answer');
+        const currentQuestionElement = document.getElementById('current-question');
+        const totalQuestionsElement = document.getElementById('total-questions');
+        const progressBar = document.getElementById('progress-bar');
+        const scoreElement = document.getElementById('score');
+        const totalElement = document.getElementById('total');
+        const incorrectAnswersList = document.getElementById('incorrect-answers-list');
+        const incorrectAnswersContainer = document.getElementById('incorrect-answers-container');
+        const restartQuizBtn = document.getElementById('restart-quiz');
+
+        // Prepare random quiz questions
+        function prepareQuizQuestions(numQuestions = 15) {
+            // If we have fewer items than requested questions, use all available
+            numQuestions = Math.min(numQuestions, EU_DATA.length);
+            
+            // Create a copy of the data array to shuffle
+            const shuffled = [...EU_DATA];
+            
+            // Fisher-Yates shuffle algorithm
+            for (let i = shuffled.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+            }
+            
+            // Select the first 'numQuestions' items
+            return shuffled.slice(0, numQuestions);
+        }
+
+        // Show current question
+        function showQuestion() {
+            if (currentQuestion >= quizQuestions.length) {
+                showResults();
+                return;
+            }
+            
+            const question = quizQuestions[currentQuestion];
+            acronymElement.textContent = question.acronym;
+            currentQuestionElement.textContent = currentQuestion + 1;
+            totalQuestionsElement.textContent = quizQuestions.length;
+            
+            // Update progress bar
+            const progress = Math.round(((currentQuestion + 1) / quizQuestions.length) * 100);
+            progressBar.style.width = progress + '%';
+            progressBar.textContent = progress + '%';
+            progressBar.setAttribute('aria-valuenow', progress);
+            
+            // Clear previous answer
+            answerInput.value = '';
+            answerInput.focus();
+        }
+
+        // Submit answer and process it
+        function submitAnswer(event) {
+            event.preventDefault();
+            
+            const answer = answerInput.value.trim();
+            if (!answer) return;
+            
+            const question = quizQuestions[currentQuestion];
+            const correct = question.full_name;
+            const isCorrect = answer.toLowerCase() === correct.toLowerCase();
+            
+            // Store user's answer
+            userAnswers.push({
+                acronym: question.acronym,
+                userAnswer: answer,
+                correctAnswer: correct,
+                isCorrect: isCorrect
+            });
+            
+            if (isCorrect) {
+                score++;
+            }
+            
+            // Move to the next question
+            currentQuestion++;
+            
+            if (currentQuestion >= quizQuestions.length) {
+                showResults();
+            } else {
+                showQuestion();
+            }
+        }
+
+        // Show quiz results
+        function showResults() {
+            quizScreen.classList.add('hidden');
+            resultsScreen.classList.remove('hidden');
+            
+            scoreElement.textContent = score;
+            totalElement.textContent = quizQuestions.length;
+            
+            // Display incorrect answers
+            const incorrectAnswers = userAnswers.filter(ans => !ans.isCorrect);
+            
+            if (incorrectAnswers.length === 0) {
+                incorrectAnswersContainer.innerHTML = '<h4 class="text-center text-success mb-4">Perfect score! You got all answers correct!</h4>';
+            } else {
+                incorrectAnswersList.innerHTML = '';
+                
+                incorrectAnswers.forEach(answer => {
+                    const item = document.createElement('div');
+                    item.className = 'list-group-item';
+                    item.innerHTML = `
+                        <h5 class="mb-1">${answer.acronym}</h5>
+                        <p class="mb-1 text-danger">Your answer: ${answer.userAnswer}</p>
+                        <p class="mb-0 text-success">Correct answer: ${answer.correctAnswer}</p>
+                    `;
+                    incorrectAnswersList.appendChild(item);
+                });
+            }
+        }
+
+        // Start a new quiz
+        function startQuiz() {
+            // Reset quiz state
+            quizQuestions = prepareQuizQuestions();
+            currentQuestion = 0;
+            score = 0;
+            userAnswers = [];
+            
+            // Show quiz screen
+            welcomeScreen.classList.add('hidden');
+            resultsScreen.classList.add('hidden');
+            quizScreen.classList.remove('hidden');
+            
+            // Display first question
+            showQuestion();
+        }
+
+        // Event listeners
+        startQuizBtn.addEventListener('click', startQuiz);
+        answerForm.addEventListener('submit', submitAnswer);
+        restartQuizBtn.addEventListener('click', startQuiz);
+    </script>
+</body>
+</html>
